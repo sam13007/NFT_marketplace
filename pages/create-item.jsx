@@ -1,22 +1,22 @@
-import { useState } from 'react';
-import { ethers } from 'ethers';
-import { create as ipfsHttpClient } from 'ipfs-http-client';
-import { useRouter } from 'next/router';
-import Web3Modal from 'web3modal';
+import { useState } from "react";
+import { ethers } from "ethers";
+import { create as ipfsHttpClient } from "ipfs-http-client";
+import { useRouter } from "next/router";
+import Web3Modal from "web3modal";
 
-const client = ipfsHttpClient('https://ipfs.infura.io:5001/api/v0');
+const client = ipfsHttpClient("https://ipfs.infura.io:5001/api/v0");
 
-import { nftaddress, nftmarketaddress } from '../config';
+import { nftaddress, nftmarketaddress } from "../config";
 
-import NFT from '../artifacts/contracts/NFT.sol/NFT.json';
-import Market from '../artifacts/contracts/NFTMarket.sol/NFTMarket.json';
+import NFT from "../artifacts/contracts/NFT.sol/NFT.json";
+import Market from "../artifacts/contracts/NFTMarket.sol/NFTMarket.json";
 
 export default function CreateItem() {
   const [fileUrl, setFileUrl] = useState(null);
   const [formInput, updateFormInput] = useState({
-    price: '',
-    name: '',
-    description: '',
+    price: "",
+    name: "",
+    description: "",
   });
   const router = useRouter();
 
@@ -47,7 +47,7 @@ export default function CreateItem() {
       /* after file is uploaded to IPFS, pass the URL to save it on Polygon */
       createSale(url);
     } catch (error) {
-      console.log('Error uploading file: ', error);
+      console.log("Error uploading file: ", error);
     }
   }
 
@@ -64,8 +64,8 @@ export default function CreateItem() {
     let event = tx.events[0];
     let value = event.args[2];
     let tokenId = value.toNumber();
-    console.log('type', typeof formInput.price);
-    const price = ethers.utils.parseUnits(formInput.price, 'ether');
+    console.log("type", typeof formInput.price);
+    const price = ethers.utils.parseUnits(formInput.price, "ether");
 
     /* then list the item for sale on the marketplace */
     contract = new ethers.Contract(nftmarketaddress, Market.abi, signer);
@@ -76,7 +76,7 @@ export default function CreateItem() {
       value: listingPrice,
     });
     await transaction.wait();
-    router.push('/');
+    router.push("/");
   }
 
   return (
