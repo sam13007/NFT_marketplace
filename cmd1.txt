@@ -1,2 +1,5 @@
 npx hardhat node = run EVM in local
 npx hardhat run scripts/deploy.js --network localhost  = cmd
+npm run dev
+run ipfs
+

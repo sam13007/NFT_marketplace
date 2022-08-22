@@ -1,10 +1,13 @@
+/* pages/create-item.js */
 import { useState } from "react";
 import { ethers } from "ethers";
 import { create as ipfsHttpClient } from "ipfs-http-client";
 import { useRouter } from "next/router";
 import Web3Modal from "web3modal";
 
-const client = ipfsHttpClient("https://ipfs.infura.io:5001/api/v0");
+const client = ipfsHttpClient({
+  url: "http://127.0.0.1:5001",
+});
 
 import { nftaddress, nftmarketaddress } from "../config";
 
@@ -22,20 +25,24 @@ export default function CreateItem() {
 
   async function onChange(e) {
     const file = e.target.files[0];
+
     try {
       const added = await client.add(file, {
-        progress: (prog) => console.log(`received:${prog}`),
+        progress: (prog) => console.log(`progress: ${prog}`),
       });
-      const url = `https://ipfs.infura.io/ipfs/${added.path}`;
+      console.log(`added: ${added}`);
+
+      const url = `http://127.0.0.1:8080/ipfs/${added.path}`;
+      console.log("url", url);
       setFileUrl(url);
     } catch (error) {
-      console.log(`Error uploading file:${error}`);
+      console.log("Error uploading file: ", error);
     }
   }
   async function createMarket() {
     const { name, description, price } = formInput;
     if (!name || !description || !price || !fileUrl) return;
-
+    /* first, upload to IPFS */
     const data = JSON.stringify({
       name,
       description,
@@ -43,7 +50,8 @@ export default function CreateItem() {
     });
     try {
       const added = await client.add(data);
-      const url = `https://ipfs.infura.io/ipfs/${added.path}`;
+      console.log("added", added);
+      const url = `http://127.0.0.1:8080/ipfs/${added.path}`;
       /* after file is uploaded to IPFS, pass the URL to save it on Polygon */
       createSale(url);
     } catch (error) {
@@ -64,7 +72,6 @@ export default function CreateItem() {
     let event = tx.events[0];
     let value = event.args[2];
     let tokenId = value.toNumber();
-    console.log("type", typeof formInput.price);
     const price = ethers.utils.parseUnits(formInput.price, "ether");
 
     /* then list the item for sale on the marketplace */
@@ -84,21 +91,21 @@ export default function CreateItem() {
       <div className="w-1/2 flex flex-col pb-12">
         <input
           placeholder="Asset Name"
-          className="mt-8 border text-gray-900 rounded p-4"
+          className="mt-8 border rounded p-4 text-black"
           onChange={(e) =>
             updateFormInput({ ...formInput, name: e.target.value })
           }
         />
         <textarea
           placeholder="Asset Description"
-          className="mt-2 border text-gray-900 rounded p-4"
+          className="mt-2 border rounded p-4 text-black"
           onChange={(e) =>
             updateFormInput({ ...formInput, description: e.target.value })
           }
         />
         <input
           placeholder="Asset Price in Eth"
-          className="mt-2 border text-gray-900 rounded p-4"
+          className="mt-2 border rounded p-4 text-black"
           onChange={(e) =>
             updateFormInput({ ...formInput, price: e.target.value })
           }
